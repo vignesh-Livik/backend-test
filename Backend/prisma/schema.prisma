@@ -1,0 +1,139 @@
+generator client {
+  provider   = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {  
+  userId   String   @id
+  email    String   @unique
+  password String
+  role     String
+  joinDate DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bankDetails         BankDetails?
+  userPersonalDetails UserPersonalDetails?
+  leaveManagements    leaveManagements[]
+  approvedLeaves      leaveManagements[]      @relation("LeaveApprover")
+  eduDetails          EduDetails[]
+  assignmentDetails   AssignmentsManagement[] @relation("Assignments")
+}
+
+model UserPersonalDetails {
+  id Int @id @default(autoincrement())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  firstName   String
+  lastName    String
+  gender      String
+  dateOfBirth DateTime
+
+  personalEmail  String  @unique
+  phoneNumber    String  @unique
+  alternatePhone String?
+
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  pincode      Int
+
+  maritalStatus String
+  bloodGroup    String?
+  nationality   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BankDetails {
+  id     Int    @id @default(autoincrement())
+  userId String @unique
+
+  bankName       String
+  accountNo      String
+  ifscCode       String
+  branchName     String
+  branchLocation String
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model leaveManagements {
+  id     Int    @id @default(autoincrement())
+  userId String
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  leaveType LeaveType @default(SICKLEAVE)
+  startDate DateTime
+  endDate   DateTime
+  totalDays Int
+  reason    String
+  status    String
+
+  approvedBy String?
+  approver   User?   @relation("LeaveApprover", fields: [approvedBy], references: [userId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum LeaveType {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  SICKLEAVE
+  EARNEDLEAVE
+  CASUALLEAVE
+}
+model EduDetails {
+  id     Int    @id @default(autoincrement())
+  userId String
+
+  qualification     String
+  specialization    String?
+  institution       String
+  boardOrUniversity String
+  yearOfPassing     Int
+  percentage        Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("edu_details")
+}
+
+model AssignmentsManagement {
+  id Int @id @default(autoincrement())
+
+  editorId String
+
+  viewerId String @unique
+
+  assignmentStatus AssignmentStatus @default(pending)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation("Assignments", fields: [viewerId], references: [userId], onDelete: Cascade)
+}
+
+enum AssignmentStatus {
+  pending
+  completed
+  cancelled
+}
