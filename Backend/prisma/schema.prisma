@@ -1,13 +1,12 @@
 generator client {
-  provider   = "prisma-client-js"
-  
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User {  
+model User {
   userId   String   @id
   email    String   @unique
   password String
@@ -73,14 +72,14 @@ model BankDetails {
 model leaveManagements {
   id     Int    @id @default(autoincrement())
   userId String
-  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [userId])
 
-  leaveType LeaveType @default(SICKLEAVE)
+  leaveType LeaveType
   startDate DateTime
   endDate   DateTime
   totalDays Int
   reason    String
-  status    String
+  status    LeaveStatus @default(PENDING)
 
   approvedBy String?
   approver   User?   @relation("LeaveApprover", fields: [approvedBy], references: [userId])
@@ -89,15 +88,19 @@ model leaveManagements {
   updatedAt DateTime @updatedAt
 }
 
-enum LeaveType {
+enum LeaveStatus {
   PENDING
   APPROVED
   REJECTED
   CANCELLED
+}
+
+enum LeaveType {
   SICKLEAVE
   EARNEDLEAVE
   CASUALLEAVE
 }
+
 model EduDetails {
   id     Int    @id @default(autoincrement())
   userId String

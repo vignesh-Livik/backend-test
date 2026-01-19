@@ -189,59 +189,83 @@ exports.getAllLeaves = async (req, res) => {
  * Approve / Reject leave
  * approvedBy MUST be User.userId (HR)
  */
-exports.updateLeaveStatus = async (req, res) => {
+// exports.updateLeaveStatus = async (req, res) => {
+//   try {
+//     const leaveId = Number(req.params.id);
+//     const { status, approvedBy } = req.body;
+
+//     if (isNaN(leaveId)) {
+//       return res.status(400).json({ error: "Invalid leave ID" });
+//     }
+
+//     if (!approvedBy) {
+//       return res.status(400).json({ error: "approvedBy is required" });
+//     }
+
+//     const approver = await prisma.user.findUnique({
+//       where: { userId: approvedBy },
+//     });
+
+//     if (!approver) {
+//       return res.status(404).json({ error: "Approver not found" });
+//     }
+
+//     const normalizedStatus = status?.toUpperCase();
+//     const allowedStatus = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"];
+
+//     if (!allowedStatus.includes(normalizedStatus)) {
+//       return res.status(400).json({ error: "Invalid status value" });
+//     }
+
+//     const existingLeave = await prisma.leaveManagements.findUnique({
+//       where: { id: leaveId },
+//     });
+
+//     if (!existingLeave) {
+//       return res.status(404).json({ error: "Leave request not found" });
+//     }
+
+//     const updatedLeave = await prisma.leaveManagements.update({
+//       where: { id: leaveId },
+//       data: {
+//         status: normalizedStatus,
+//         approvedBy,
+//       },
+//     });
+
+//     res.json({
+//       message: "Leave status updated successfully",
+//       data: updatedLeave,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+exports.updateLeaveDetails = async (req, res) => {
   try {
     const leaveId = Number(req.params.id);
-    const { status, approvedBy } = req.body;
-
-    if (isNaN(leaveId)) {
-      return res.status(400).json({ error: "Invalid leave ID" });
-    }
-
-    if (!approvedBy) {
-      return res.status(400).json({ error: "approvedBy is required" });
-    }
-
-    const approver = await prisma.user.findUnique({
-      where: { userId: approvedBy },
-    });
-
-    if (!approver) {
-      return res.status(404).json({ error: "Approver not found" });
-    }
-
-    const normalizedStatus = status?.toUpperCase();
-    const allowedStatus = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"];
-
-    if (!allowedStatus.includes(normalizedStatus)) {
-      return res.status(400).json({ error: "Invalid status value" });
-    }
-
-    const existingLeave = await prisma.leaveManagements.findUnique({
-      where: { id: leaveId },
-    });
-
-    if (!existingLeave) {
-      return res.status(404).json({ error: "Leave request not found" });
-    }
+    const { startDate, endDate, leaveType, reason, totalDays } = req.body;
 
     const updatedLeave = await prisma.leaveManagements.update({
       where: { id: leaveId },
       data: {
-        status: normalizedStatus,
-        approvedBy,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        leaveType,
+        reason,
+        totalDays,
       },
     });
 
     res.json({
-      message: "Leave status updated successfully",
+      message: "Leave updated successfully",
       data: updatedLeave,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 
 exports.deleteLeave = async (req, res) => {

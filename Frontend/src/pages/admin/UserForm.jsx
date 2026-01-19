@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { createUser, updateUser } from "../../api/userApi";
+import { createUser, updateUser } from "../../services/userApi";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   User,
@@ -51,7 +51,7 @@ function UserForm() {
       await createUser(form);
     }
 
-    navigate("/dashboard/admin");
+    navigate("/admin");
   };
 
   return (
@@ -60,7 +60,7 @@ function UserForm() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate("/dashboard/admin")}
+            onClick={() => navigate("/admin")}
             className="flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -194,7 +194,7 @@ function UserForm() {
               >
                 <option value="">Select a role</option>
                 <option value="ADMIN" className="py-2">
-                  Administrator
+                  Admin
                 </option>
                 <option value="EDITOR">Editor</option>
                 <option value="VIEWER">Viewer</option>
@@ -244,7 +244,7 @@ function UserForm() {
           <div className="flex space-x-4 pt-4 border-t">
             <button
               type="button"
-              onClick={() => navigate("/dashboard/admin")}
+              onClick={() => navigate("/admin")}
               className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />

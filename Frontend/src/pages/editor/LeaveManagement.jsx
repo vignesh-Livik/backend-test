@@ -1,109 +1,33 @@
-// import { useEffect, useState } from "react";
-// import LeaveModal from "./LeaveModal";
-
-// function App() {
-//   const [leaves, setLeaves] = useState([]);
-//   const [openModal, setOpenModal] = useState(false);
-//   const [editLeave, setEditLeave] = useState(null);
-
-//   const fetchLeaves = async () => {
-//     const res = await fetch("http://localhost:3000/api/leaves/all");
-//     const data = await res.json();
-//     setLeaves(Array.isArray(data) ? data : []);
-//   };
-
-//   useEffect(() => {
-//     fetchLeaves();
-//   }, []);
-
-//   const handleDelete = async (id) => {
-//     if (!window.confirm("Are you sure you want to delete this leave?")) return;
-
-//     try {
-//       const res = await fetch(`http://localhost:3000/api/leaves/${id}`, {
-//         method: "DELETE",
-//       });
-
-//       if (!res.ok) {
-//         throw new Error("Failed to delete leave");
-//       }
-//       fetchLeaves();
-//     } catch (err) {
-//       console.error(err);
-//       alert("Error deleting leave");
-//     }
-//   };
-
-//   const UpdateLeave = (leave) => {
-//     setEditLeave(leave);
-//     setOpenModal(true);
-//   };
-
-//   return (
-//     <>
-//       <button onClick={() => setOpenModal(true)}>Add Leave</button>
-//       <table border="1">
-//         <thead>
-//           <tr>
-//             <th>ID</th>
-//             <th>User Id</th>
-//             <th>From Date</th>
-//             <th>To Date</th>
-//             <th>LeaveType</th>
-//             <th>Reason</th>
-//             <th>Actions</th>
-//           </tr>
-//         </thead>
-
-//         <tbody>
-//           {leaves.map((leave) => (
-//             <tr key={leave.id}>
-//               <td>{leave.id}</td>
-//               <td>{leave.user?.email}</td>
-//               <td>{leave.startDate}</td>
-//               <td>{leave.endDate}</td>
-//               <td>{leave.leaveType}</td>
-//               <td>{leave.reason}</td>
-//               <td>
-//                 <button onClick={() => UpdateLeave(leave)}>Edit</button>
-//                 <button onClick={() => handleDelete(leave.id)}>Delete</button>
-//               </td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//       <LeaveModal
-//         isOpen={openModal}
-//         onClose={() => {
-//           setOpenModal(false);
-//           setEditLeave(null);
-//         }}
-//         onSuccess={fetchLeaves}
-//         editLeave={editLeave}
-//       />
-//     </>
-//   );
-// }
-
-// export default App;
-
 import { useEffect, useState } from "react";
 import LeaveModal from "../../components/LeaveModal";
-// import { leaveManagements } from "../../../../Backend/prisma/client";
-
 
 function LeaveManagement() {
   const [leaves, setLeaves] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [editLeave, setEditLeave] = useState(null);
+  const [viewMode, setViewMode] = useState(false);
+
+  const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
 
   const onClose = () => {
     setOpenModal(false);
     setEditLeave(null);
+    setViewMode(false);
+  };
+
+  const viewLeave = (leave) => {
+    setEditLeave(leave);
+    setViewMode(true);
+    setOpenModal(true);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toISOString().slice(0, 10);
   };
 
   const fetchLeaves = async () => {
-    const res = await fetch("http://localhost:3000/api/leaves/all");
+    const res = await fetch(`${BASE_URL}/api/leaves/all`);
     const data = await res.json();
     setLeaves(Array.isArray(data) ? data : []);
   };
@@ -116,7 +40,7 @@ function LeaveManagement() {
     if (!window.confirm("Are you sure you want to delete this leave?")) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/leaves/${id}`, {
+      const res = await fetch(`${BASE_URL}/api/leaves/${id}`, {
         method: "DELETE",
       });
 
@@ -133,6 +57,7 @@ function LeaveManagement() {
   const UpdateLeave = (leave) => {
     setEditLeave(leave);
     setOpenModal(true);
+    setViewMode(true);
   };
 
   return (
@@ -156,22 +81,25 @@ function LeaveManagement() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     User Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     From Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     To Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Total Days
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Leave Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Reason
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -182,9 +110,15 @@ function LeaveManagement() {
                     key={leave.id}
                     className="hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {leave.id}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => viewLeave(leave)}
+                        className="text-blue-600 hover:underline hover:text-blue-800"
+                      >
+                        {leave.id}
+                      </button>
                     </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
@@ -199,38 +133,54 @@ function LeaveManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium">
-                        {leave.startDate}
+                        {formatDate(leave.startDate)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                       <span className="px-2 py-1 bg-green-50 text-green-700 rounded-md text-xs font-medium">
-                        {leave.endDate}
+                        {formatDate(leave.endDate)}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <div className="flex items-center justify-center">
+                        <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-md text-xs font-medium">
+                          {leave.totalDays}
+                        </span>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                          leave.leaveType === "SICKLEAVE"
-                            ? "bg-red-100 text-red-800"
-                            : leave.leaveType === "EARNEDLEAVE"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
-                        {leave.leaveType}
-                      </span>
+                      <div className="flex items-center justify-center">
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                            leave.leaveType === "SICKLEAVE"
+                              ? "bg-red-100 text-red-800"
+                              : leave.leaveType === "EARNEDLEAVE"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {leave.leaveType}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
-                      {leave.reason}
+                    <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
+                      <div className="flex items-center justify-center">
+                        <span>{leave.reason}</span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
+                    <td className="px-2 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center justify-center space-x-1">
                         <button
-                          onClick={() => UpdateLeave(leave)}
-                          className="text-blue-600 hover:text-blue-900 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
+                          onClick={() => {
+                            setEditLeave(leave);
+                            setViewMode(false);
+                            setOpenModal(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-900 px-2 py-1 hover:bg-blue-50 rounded"
                         >
                           Edit
                         </button>
+
                         <span className="text-gray-300">|</span>
                         <button
                           onClick={() => handleDelete(leave.id)}
@@ -279,6 +229,7 @@ function LeaveManagement() {
         onClose={onClose}
         onSuccess={fetchLeaves}
         editLeave={editLeave}
+        viewMode={viewMode}
       />
     </div>
   );

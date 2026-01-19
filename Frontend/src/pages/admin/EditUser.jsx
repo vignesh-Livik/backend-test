@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { getAllUsers } from "../../api/userApi";
+import { getAllUsers } from "../../services/userApi";
 import UserForm from "../admin/UserForm";
 import { useEffect, useState } from "react";
 
