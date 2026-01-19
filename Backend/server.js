@@ -7,7 +7,7 @@ const bankroutes = require("./routes/bankRoutes");
 const userRoutes = require("./routes/userRoutes");
 const userPersonalDetailsRoutes = require("./routes/userPersonalDetailsRoutes");
 const assignmentRoutes = require("./routes/assignmentRoutes");
-const leavesRoutes = require("./routes/leaves");
+const leavesRoutes = require("./routes/leave/route");
 const eduRoutes = require("./routes/eduRoutes");
 
 const app = express();
@@ -32,7 +32,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/bank", bankroutes);
 app.use("/api/users", userRoutes);
 app.use("/api/education", eduRoutes);
-app.use("/api/leaves", leaveRoutes);
+app.use("/api/leaves", leavesRoutes);
 
 // app.listen(PORT, () => {
 //   console.log(`Server is running at http://localhost:${PORT}/`);
