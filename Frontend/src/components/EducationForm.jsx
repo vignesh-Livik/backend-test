@@ -99,7 +99,7 @@ function EducationForm({
     setIsSubmitting(true);
     try {
       await onSubmit({
-        id: formData.id,
+        userId: formData.userId,
         qualification: formData.qualification,
         specialization: formData.specialization || null,
         institution: formData.institution,

@@ -37,9 +37,6 @@
 
 // export default Sidebar;
 
-
-
-
 // import { NavLink } from "react-router";
 // import { useNavigate } from "react-router";
 
@@ -106,7 +103,7 @@
 
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router";
-import logo from "../assets/Logo_PNG.png"
+import logo from "../assets/Logo_PNG.png";
 const Sidebar = () => {
   const [openMenu, setOpenMenu] = useState(null);
   const navigate = useNavigate();
@@ -123,29 +120,23 @@ const Sidebar = () => {
 
   // Auto-open based on active route
   useEffect(() => {
-    if (location.pathname.includes("/dashboard/admin")) {
+    if (location.pathname.includes("/admin")) {
       setOpenMenu("admin");
-    } else if (location.pathname.includes("/dashboard/editor")) {
+    } else if (location.pathname.includes("/editor")) {
       setOpenMenu("editor");
     }
   }, [location.pathname]);
 
-  const isAdminActive = location.pathname.includes("/dashboard/admin");
-  const isEditorActive = location.pathname.includes("/dashboard/editor");
+  const isAdminActive = location.pathname.includes("/admin");
+  const isEditorActive = location.pathname.includes("/editor");
 
   return (
     <aside className="w-[220px] bg-gray-800 text-white p-3 flex flex-col h-screen text-sm">
       <div className="flex justify-center mb-10">
-  <img
-    src={logo}
-    alt="logo"
-    className="h-20 w-20 object-contain"
-  />
-</div>
-
+        <img src={logo} alt="logo" className="h-20 w-20 object-contain" />
+      </div>
 
       <nav className="space-y-3">
-
         {/* ADMIN */}
         <div>
           <button
@@ -169,10 +160,10 @@ const Sidebar = () => {
               openMenu === "admin" ? "max-h-40" : "max-h-0"
             }`}
           >
-            <NavLink to="/dashboard/admin/assignments" className={subLink}>
+            <NavLink to="/admin/assignments" className={subLink}>
               Assignments
             </NavLink>
-            <NavLink to="/dashboard/admin/leave-management" className={subLink}>
+            <NavLink to="/admin/leave-management" className={subLink}>
               Leave
             </NavLink>
           </div>
@@ -201,13 +192,13 @@ const Sidebar = () => {
               openMenu === "editor" ? "max-h-24" : "max-h-0"
             }`}
           >
-            <NavLink to="/dashboard/editor/personal" className={subLink}>
+            <NavLink to="/editor/personal" className={subLink}>
               Personal
             </NavLink>
-            <NavLink to="/dashboard/editor/education" className={subLink}>
+            <NavLink to="/editor/education" className={subLink}>
               Education
             </NavLink>
-            <NavLink to="/dashboard/editor/bank" className={subLink}>
+            <NavLink to="/editor/bank" className={subLink}>
               Bank
             </NavLink>
           </div>
@@ -215,7 +206,7 @@ const Sidebar = () => {
 
         {/* VIEWER */}
         <NavLink
-          to="/dashboard/viewer"
+          to="/viewer"
           className={({ isActive }) =>
             `block px-2 py-1.5 rounded ${
               isActive ? "bg-blue-600" : "hover:bg-gray-700"
@@ -243,4 +234,3 @@ const subLink = ({ isActive }) =>
   }`;
 
 export default Sidebar;
-

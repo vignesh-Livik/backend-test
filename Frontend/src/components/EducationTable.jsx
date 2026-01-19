@@ -72,20 +72,6 @@ function EducationTable({ data, onEdit, onDelete }) {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-amber-50 to-amber-100 border border-amber-200 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-amber-600 font-medium">Distinctions</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {stats.highAchievers}
-              </p>
-            </div>
-            <div className="p-2 bg-white rounded-lg shadow-sm">
-              <Sparkles className="h-5 w-5 text-amber-600" />
-            </div>
-          </div>
-        </div>
-
         <div className="bg-gradient-to-r from-violet-50 to-violet-100 border border-violet-200 rounded-xl p-4">
           <div className="flex items-center justify-between">
             <div>

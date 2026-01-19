@@ -1,12 +1,13 @@
 const express = require("express");
-const { createAssignment, deleteAssignment, getAssignmentsByViewer, updatePersonalDetails, updateBankDetails } = require("../controller/assignmentController");
+const { createAssignment, deleteAssignment, updateAssignment, getAssignmentsByEditor, getAllAssignments } = require("../controller/assignmentController");
 
 const router = express.Router();
 
-router.post("/create", createAssignment);
-router.get("/viewer/:viewerId", getAssignmentsByViewer);
-router.patch("/:editorId/user/:viewerId/personal-details", updatePersonalDetails)
-router.patch("/:editorId/user/:viewerId/bank-details", updateBankDetails)
+router.post("/", createAssignment);
+router.get("/", getAllAssignments);
+router.get("/:editorId", getAssignmentsByEditor);
+router.put("/:id", updateAssignment);
+
 router.delete("/:id", deleteAssignment);
 
 module.exports = router;

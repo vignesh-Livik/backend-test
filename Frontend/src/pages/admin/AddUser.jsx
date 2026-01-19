@@ -1,23 +1,22 @@
-
-import UserForm from "./UserForm";
+import UserForm from "../admin/UserForm";
 import { useNavigate } from "react-router-dom";
 
-function AddUser() {
+function AddUserPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 max-w-md mx-auto">
+    <div className="p-6 max-w-7xl mx-auto">
       <h2 className="text-xl font-bold mb-4">Add User</h2>
 
       <UserForm
         selectedUser={null}
         refreshUsers={() => navigate("/")}
         clearSelection={() => {}}
-        isOpen={true} 
-        onClose={() => {}} 
+        isOpen={true} // ✅ FIX
+        onClose={() => {}} // ✅ FIX
       />
     </div>
   );
 }
 
-export default AddUser;
+export default AddUserPage;

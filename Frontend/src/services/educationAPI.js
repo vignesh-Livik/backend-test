@@ -1,12 +1,12 @@
-const BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3000";
+
+const API_PATH = "/api/education";
 
 /* ===============================
    GET EDUCATION BY USER
    =============================== */
 export async function getEducationByUser(userId) {
-  const response = await fetch(
-    `${BASE_URL}/users/${userId}/education`
-  );
+  const response = await fetch(`${API_BASE_URL}${API_PATH}/${userId}`);
 
   if (!response.ok) {
     throw new Error("Failed to fetch education details");
@@ -18,20 +18,17 @@ export async function getEducationByUser(userId) {
 /* ===============================
    ADD EDUCATION
    =============================== */
-export async function addEducation(userId, payload) {
-  const response = await fetch(
-    `${BASE_URL}/users/${userId}/education`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    }
-  );
+export async function addEducation(payload) {
+  const response = await fetch(`${API_BASE_URL}${API_PATH}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 
   if (!response.ok) {
-    const err = await response.json();
+    const err = await response.json().catch(() => ({}));
     throw new Error(err.message || "Failed to add education details");
   }
 
@@ -39,60 +36,39 @@ export async function addEducation(userId, payload) {
 }
 
 /* =====================================================
-   🔥 UPDATE EDUCATION (BY EDUCATION ID – REQUIRED)
+   UPDATE EDUCATION (BY USER ID)
    ===================================================== */
-export async function updateEducation(id, payload) {
-  const response = await fetch(
-    `${BASE_URL}/education/${id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    }
-  );
+export async function updateEducationByUser(userId, payload) {
+  const response = await fetch(`${API_BASE_URL}${API_PATH}/${userId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.message || "Failed to update education");
-  }
-
-  return response.json();
-}
-
-/* =====================================================
-   🔥 DELETE EDUCATION (BY EDUCATION ID – REQUIRED)
-   ===================================================== */
-export async function deleteEducation(id) {
-  const response = await fetch(
-    `${BASE_URL}/education/${id}`,
-    {
-      method: "DELETE",
-    }
-  );
-
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.message || "Failed to delete education");
+    throw new Error("Failed to update education");
   }
 
   return response.json();
 }
 
 /* ===============================
-   (OPTIONAL) BULK OPERATIONS
+   DELETE EDUCATION (BY USER ID)
    =============================== */
-export async function updateEducationByUser(userId, payload) {
-  return fetch(`${BASE_URL}/users/${userId}/education`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-}
-
 export async function deleteEducationByUser(userId) {
-  return fetch(`${BASE_URL}/users/${userId}/education`, {
+  const response = await fetch(`${API_BASE_URL}${API_PATH}/${userId}`, {
     method: "DELETE",
   });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete education");
+  }
+
+  return response.json();
 }
+
+// Fallback aliases for compatibility with Education.jsx if it uses them
+export const updateEducation = updateEducationByUser;
+export const deleteEducation = deleteEducationByUser;

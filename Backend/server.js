@@ -12,11 +12,12 @@ const eduRoutes = require("./routes/eduRoutes");
 
 const app = express();
 const PORT = 3000;
-// app.use(cors());
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  })
+);
 
 app.use(express.json());
 
@@ -24,13 +25,17 @@ app.get("/", async (req, res) => {
   res.send("Server Connected");
 });
 
+app.get("/", async (req, res) => {
+  res.send("Server Connected");
+});
+
 app.use("/api", apiRoutes);
 app.use("/api", userPersonalDetailsRoutes);
-app.use("/assignment", assignmentRoutes);
-app.use("/auth", authRoutes);
+app.use("/api/assignment", assignmentRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/bank", bankroutes);
 app.use("/user", userRoutes);
-app.use("/api", eduRoutes);
+app.use("/api/education", eduRoutes);
 app.use("/api/leaves", leaveRoutes);
 
 // app.listen(PORT, () => {

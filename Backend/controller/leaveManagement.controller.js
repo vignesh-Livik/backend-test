@@ -191,8 +191,12 @@ exports.getAllLeaves = async (req, res) => {
  */
 exports.updateLeaveStatus = async (req, res) => {
   try {
-    const { id } = req.params;
+    const leaveId = Number(req.params.id);
     const { status, approvedBy } = req.body;
+
+    if (isNaN(leaveId)) {
+      return res.status(400).json({ error: "Invalid leave ID" });
+    }
 
     if (!approvedBy) {
       return res.status(400).json({ error: "approvedBy is required" });
@@ -206,22 +210,39 @@ exports.updateLeaveStatus = async (req, res) => {
       return res.status(404).json({ error: "Approver not found" });
     }
 
+    const normalizedStatus = status?.toUpperCase();
+    const allowedStatus = ["PENDING", "APPROVED", "REJECTED", "CANCELLED"];
+
+    if (!allowedStatus.includes(normalizedStatus)) {
+      return res.status(400).json({ error: "Invalid status value" });
+    }
+
+    const existingLeave = await prisma.leaveManagements.findUnique({
+      where: { id: leaveId },
+    });
+
+    if (!existingLeave) {
+      return res.status(404).json({ error: "Leave request not found" });
+    }
+
     const updatedLeave = await prisma.leaveManagements.update({
-      where: { id: Number(id) },
+      where: { id: leaveId },
       data: {
-        status,
+        status: normalizedStatus,
         approvedBy,
       },
     });
 
     res.json({
-      message: "Leave status updated",
+      message: "Leave status updated successfully",
       data: updatedLeave,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 exports.deleteLeave = async (req, res) => {
   try {

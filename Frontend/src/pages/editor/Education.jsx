@@ -7,12 +7,7 @@ import {
 } from "../../services/educationAPI";
 import EducationTable from "../../components/EducationTable";
 import EducationForm from "../../components/EducationForm";
-import {
-  GraduationCap,
-  Loader2,
-  AlertCircle,
-  PlusCircle,
-} from "lucide-react";
+import { GraduationCap, Loader2, AlertCircle, PlusCircle } from "lucide-react";
 
 function Education() {
   const [education, setEducation] = useState([]);
@@ -32,8 +27,13 @@ function Education() {
   const fetchEducationData = async () => {
     try {
       setLoading(true);
+
       const res = await getEducationByUser(userId);
-      setEducation(res.data || []);
+
+      // ✅ BACKEND RETURNS ARRAY
+      const list = Array.isArray(res) ? res : res.data;
+
+      setEducation(list || []);
       setError("");
     } catch (err) {
       setError(err.message || "Failed to load data");
@@ -46,17 +46,17 @@ function Education() {
   /* ================= ADD ================= */
   const handleAddEducation = async (formData) => {
     try {
-      await addEducation(userId, {
+      await addEducation({
+        userId, // ✅ PASS FROM PAGE
         qualification: formData.qualification,
         specialization: formData.specialization || null,
         institution: formData.institution,
         boardOrUniversity: formData.boardOrUniversity,
         yearOfPassing: Number(formData.yearOfPassing),
-        percentage: formData.percentage
-          ? Number(formData.percentage)
-          : null,
+        percentage: formData.percentage ? Number(formData.percentage) : null,
       });
-      setIsModalOpen(false);
+
+      closeModal();
       fetchEducationData();
     } catch (err) {
       alert(err.message);
@@ -72,9 +72,7 @@ function Education() {
         institution: formData.institution,
         boardOrUniversity: formData.boardOrUniversity,
         yearOfPassing: Number(formData.yearOfPassing),
-        percentage: formData.percentage
-          ? Number(formData.percentage)
-          : null,
+        percentage: formData.percentage ? Number(formData.percentage) : null,
       });
 
       closeModal();
@@ -132,7 +130,7 @@ function Education() {
         </div>
 
         {/* CONTENT */}
-        <div className=" p-6 rounded-xl shadow bg-gray-100">
+        <div className="p-6 rounded-xl shadow bg-gray-100">
           {loading && (
             <div className="text-center py-12">
               <Loader2 className="h-10 w-10 animate-spin mx-auto text-blue-600" />
@@ -164,8 +162,7 @@ function Education() {
                 isEditMode={isEditMode}
                 onSubmit={
                   isEditMode
-                    ? (data) =>
-                        handleEditEducation(editingEducation.id, data)
+                    ? (data) => handleEditEducation(editingEducation.id, data)
                     : handleAddEducation
                 }
                 onCancel={closeModal}

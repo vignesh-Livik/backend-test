@@ -125,7 +125,7 @@
 
 // export default LeaveModal;
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function LeaveModal({ isOpen, onClose, onSuccess, editLeave }) {
   const [formData, setFormData] = useState({
@@ -145,6 +145,18 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave }) {
     }));
   };
 
+  useEffect(() => {
+    if (editLeave) {
+      setFormData({
+        userId: editLeave.userId || "",
+        startDate: new Date(editLeave.startDate).toISOString().slice(0, 10),
+        endDate: new Date(editLeave.endDate).toISOString().slice(0, 10),
+        leaveType: editLeave.leaveType || "SICKLEAVE",
+        reason: editLeave.reason || "",
+      });
+    }
+  }, [editLeave]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -159,12 +171,19 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave }) {
     const isEdit = Boolean(editLeave);
 
     const url = isEdit
-      ? `http://localhost:3000/api/leaves/${editLeave.id}`
+      ? `http://localhost:3000/api/leaves/status/${editLeave.id}`
       : "http://localhost:3000/api/leaves";
 
     const method = isEdit ? "PUT" : "POST";
 
-    const body = isEdit ? payload : { ...payload, userId: formData.userId };
+    const body = isEdit
+      ? {
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          leaveType: formData.leaveType,
+          reason: formData.reason,
+        }
+      : { ...payload, userId: formData.userId };
 
     try {
       const res = await fetch(url, {
@@ -193,15 +212,18 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave }) {
         onClick={onClose}
       />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all w-full max-w-md">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5">
+        <div className="relative transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all w-full max-w-2xl">
+          <div className=" px-6 py-5 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">Apply for Leave</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                {editLeave ? "Edit Leave" : "Apply for Leave"}
+              </h2>
+
               <button
                 onClick={() => {
                   onClose();
                 }}
-                className="text-white/80 hover:text-white transition-colors rounded-full p-1 hover:bg-white/10"
+                className="text-white/80 hover:text-white transition-colors rounded-full p-1 hover:bg-red/50"
               >
                 <svg
                   className="w-6 h-6"
@@ -218,44 +240,76 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave }) {
                 </svg>
               </button>
             </div>
-            <p className="text-blue-100 text-sm mt-1">
+            <p className="text-gray-500 text-sm mt-1">
               Fill in the details to request leave
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                User ID <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  User ID <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    name="userId"
+                    value={formData.userId}
+                    onChange={handleChange}
+                    required
+                    className="block w-76 pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Enter user ID"
+                  />
                 </div>
-                <input
-                  type="text"
-                  name="userId"
-                  value={formData.userId}
-                  onChange={handleChange}
-                  required
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Enter user ID"
-                />
               </div>
+              {/* <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  User ID <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    name="userId"
+                    value={formData.userId}
+                    onChange={handleChange}
+                    required
+                    className="block w-76 pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    placeholder="Enter user ID"
+                  />
+                </div>
+              </div> */}
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
@@ -403,7 +457,7 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave }) {
                 type="submit"
                 className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-md hover:shadow-lg"
               >
-                Submit Request
+                {editLeave ? "Update Leave" : "Submit Request"}
               </button>
             </div>
           </form>

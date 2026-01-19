@@ -89,7 +89,8 @@
 
 import { useEffect, useState } from "react";
 import LeaveModal from "../../components/LeaveModal";
-import { leaveManagements } from "../../../../Backend/prisma/client";
+// import { leaveManagements } from "../../../../Backend/prisma/client";
+
 
 function LeaveManagement() {
   const [leaves, setLeaves] = useState([]);
