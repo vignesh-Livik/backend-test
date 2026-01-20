@@ -7,7 +7,7 @@ const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
  */
 export const applyLeave = async (leaveData) => {
   try {
-    const response = await fetch(`${BASE_URL}/apply`, {
+    const response = await fetch(`${BASE_URL}/api/leaves`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +29,7 @@ export const applyLeave = async (leaveData) => {
  */
 export const getLeavesByUser = async (userId) => {
   try {
-    const response = await fetch(`${BASE_URL}/user/${userId}`);
+    const response = await fetch(`${BASE_URL}/api/leaves/${userId}`);
     return await response.json();
   } catch (error) {
     console.error("Get Leaves By User Error:", error);
@@ -44,7 +44,7 @@ export const getLeavesByUser = async (userId) => {
  */
 export const getAllLeaves = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/all`);
+    const response = await fetch(`${BASE_URL}/api/leaves/all`);
     return await response.json();
   } catch (error) {
     console.error("Get All Leaves Error:", error);
@@ -59,7 +59,7 @@ export const getAllLeaves = async () => {
  */
 export const updateLeaveStatus = async (leaveId, data) => {
   try {
-    const response = await fetch(`${BASE_URL}/${leaveId}`, {
+    const response = await fetch(`${BASE_URL}/api/leaves/${leaveId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export const updateLeaveStatus = async (leaveId, data) => {
  */
 export const deleteLeave = async (leaveId) => {
   try {
-    const response = await fetch(`${BASE_URL}/${leaveId}`, {
+    const response = await fetch(`${BASE_URL}/api/leaves/${leaveId}`, {
       method: "DELETE",
     });
 

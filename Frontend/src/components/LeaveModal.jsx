@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
+  const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
   const [formData, setFormData] = useState({
     userId: "",
     startDate: "",
@@ -64,8 +65,8 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
     const isEdit = Boolean(editLeave);
 
     const url = isEdit
-      ? `https://common-backend-server.vercel.app/api/leaves/${editLeave.id}`
-      : "https://common-backend-server.vercel.app/api/leaves";
+      ? `${BASE_URL}/api/leaves/${editLeave.id}`
+      : `${BASE_URL}/api/leaves`;
 
     const method = isEdit ? "PUT" : "POST";
 
