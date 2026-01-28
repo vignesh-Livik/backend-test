@@ -3,7 +3,7 @@ console.log("mail:", process.env.EMAIL_ID,)
 const sendMail = async (options) => {
   try {
     const info = await transporter.sendMail({
-      from: process.env.EMAIL_ID,
+      // from: process.env.EMAIL_ID,
       ...options
     });
     console.log("✅ Email sent:", {
