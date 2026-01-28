@@ -1,6 +1,6 @@
 const prisma = require("../prisma/client.js");
 
-const sendMail = require("./sendEmail.js");
+const sendMail = require("../utils/emailService.js");
 
 exports.createAssignment = async (req, res) => {
   try {
