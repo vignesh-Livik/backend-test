@@ -29,7 +29,7 @@ const Bank = () => {
 
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch bank details: HTTP ${response.status}`
+          `Failed to fetch bank details: HTTP ${response.status}`,
         );
       }
 
@@ -51,7 +51,7 @@ const Bank = () => {
       }
 
       setBankDetailsList((prev) =>
-        prev.filter((item) => item.userId !== userId)
+        prev.filter((item) => item.userId !== userId),
       );
       setShowDeleteConfirm(null);
       alert("Bank details deleted successfully!");
@@ -70,7 +70,7 @@ const Bank = () => {
       bank.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bank.bankName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bank.accountNo.includes(searchTerm) ||
-      bank.ifscCode.toLowerCase().includes(searchTerm.toLowerCase())
+      bank.ifscCode.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const openViewModal = (userId) => {

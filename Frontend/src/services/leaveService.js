@@ -1,10 +1,5 @@
 const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
 
-/**
- * Apply Leave
- * Matches backend: exports.applyLeave
- * POST /api/leaves/apply
- */
 export const applyLeave = async (leaveData) => {
   try {
     const response = await fetch(`${BASE_URL}/api/leaves`, {
@@ -22,11 +17,6 @@ export const applyLeave = async (leaveData) => {
   }
 };
 
-/**
- * Get leaves by user
- * Matches backend: exports.getLeavesByUser
- * GET /api/leaves/user/:userId
- */
 export const getLeavesByUser = async (userId) => {
   try {
     const response = await fetch(`${BASE_URL}/api/leaves/${userId}`);
@@ -37,11 +27,6 @@ export const getLeavesByUser = async (userId) => {
   }
 };
 
-/**
- * Get all leaves (Admin / HR)
- * Matches backend: exports.getAllLeaves
- * GET /api/leaves/all
- */
 export const getAllLeaves = async () => {
   try {
     const response = await fetch(`${BASE_URL}/api/leaves/all`);
@@ -52,11 +37,6 @@ export const getAllLeaves = async () => {
   }
 };
 
-/**
- * Update leave status (Approve / Reject / Cancel)
- * Matches backend: exports.updateLeaveStatus
- * PUT /api/leaves/:id
- */
 export const updateLeaveStatus = async (leaveId, data) => {
   try {
     const response = await fetch(`${BASE_URL}/api/leaves/${leaveId}`, {
@@ -74,11 +54,6 @@ export const updateLeaveStatus = async (leaveId, data) => {
   }
 };
 
-/**
- * Delete leave
- * Matches backend: exports.deleteLeave
- * DELETE /api/leaves/:id
- */
 export const deleteLeave = async (leaveId) => {
   try {
     const response = await fetch(`${BASE_URL}/api/leaves/${leaveId}`, {

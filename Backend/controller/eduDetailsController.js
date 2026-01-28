@@ -95,10 +95,42 @@ const deleteEduDetails = async (req, res) => {
   }
 };
 
+const updateEduDetailById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, ...data } = req.body;
+
+    const updated = await prisma.eduDetails.update({
+      where: { id: Number(id) },
+      data: data,
+    });
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteEduDetailById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.eduDetails.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({ message: "Education record deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createEduDetails,
   getEduDetailsByUserId,
   updateEduDetails,
   deleteEduDetails,
   getAllEduDetails,
+  updateEduDetailById,
+  deleteEduDetailById,
 };

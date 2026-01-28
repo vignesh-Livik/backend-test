@@ -56,16 +56,22 @@ const getUserById = async (req, res) => {
 
     const user = await prisma.user.findUnique({
       where: { userId: id },
+      include: {
+        bankDetails: true,
+        eduDetails: true,
+        userPersonalDetails: true,
+      },
     });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(user);
+    res.json(user);
   } catch (error) {
+    console.error("❌ Backend Error:", error);
     res.status(500).json({
-      message: "Error fetching user",
+      message: "Internal Server Error",
       error: error.message,
     });
   }

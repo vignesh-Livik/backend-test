@@ -21,7 +21,7 @@ const thClass =
   "px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200";
 const tdClass = "px-6 py-4 text-sm text-gray-800";
 
-function EducationTable({ data, onEdit, onDelete }) {
+function EducationTable({ data, onEdit, onDelete, onView }) {
   const [selectedRow, setSelectedRow] = useState(null);
 
   if (!Array.isArray(data) || data.length === 0) return null;
@@ -30,7 +30,7 @@ function EducationTable({ data, onEdit, onDelete }) {
   const stats = {
     total: data.length,
     recent: data.filter(
-      (edu) => new Date().getFullYear() - edu.yearOfPassing <= 5
+      (edu) => new Date().getFullYear() - edu.yearOfPassing <= 5,
     ).length,
     highAchievers: data.filter((edu) => edu.percentage >= 75).length,
     avgPercentage:
@@ -145,12 +145,17 @@ function EducationTable({ data, onEdit, onDelete }) {
                     <td className={`${tdClass} pl-8 text-left`}>
                       <div className="space-y-1">
                         <div className="flex items-center space-x-2">
-                          <span className="font-mono text-xs font-semibold text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onView(edu);
+                            }}
+                            className="font-mono text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline bg-blue-50 px-2 py-1 rounded transition-colors"
+                          >
                             {edu.id}
-                          </span>
+                          </button>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <User className="h-3 w-3 text-gray-400" />
                           <span className="text-xs text-gray-500">
                             UserID: {edu.userId}
                           </span>
@@ -201,9 +206,6 @@ function EducationTable({ data, onEdit, onDelete }) {
                           <span className="font-semibold">
                             {edu.yearOfPassing}
                           </span>
-                        </div>
-                        <div>
-                          {isRecent ? "Recent" : `${yearsAgo} years ago`}
                         </div>
                       </div>
                     </td>

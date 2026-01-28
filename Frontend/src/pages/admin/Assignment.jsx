@@ -1,9 +1,30 @@
+
 import { useEffect, useState } from "react";
-import { getAllAssignments,createAssignment,updateAssignment,deleteAssignment } from "../../services/assignmentService";
-import { UserPlus, Edit2, Trash2, X, Loader2, Calendar, Mail, Users, UserCheck, PlusCircle } from "lucide-react";
+import {
+  getAllAssignments,
+  createAssignment,
+  updateAssignment,
+  deleteAssignment,
+} from "../../services/assignmentService";
+import {
+  UserPlus,
+  Edit2,
+  Trash2,
+  X,
+  Loader2,
+  Calendar,
+  Mail,
+  Users,
+  UserCheck,
+  PlusCircle,
+  ChevronDown,
+} from "lucide-react";
+import { getAllUsers } from "../../services/userApi";
 
 export default function Assignment() {
-  const [assignments, setAssignments] = useState([]);
+   const [assignments, setAssignments] = useState([]);
+  const [editors, setEditors] = useState([]);
+  const [viewers, setViewers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editRow, setEditRow] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
@@ -21,8 +42,23 @@ export default function Assignment() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const res = await getAllUsers();
+      const resData=res.data;
+      const editorsData=resData.data.filter((user)=>user.role==="EDITOR")
+      const viewersData=resData.data.filter((user)=>user.role==="VIEWER")
+  
+      setEditors(editorsData);
+      setViewers(viewersData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchAssignments();
+    fetchUsers();
   }, []);
 
   const handleDelete = async (id) => {
@@ -40,14 +76,16 @@ export default function Assignment() {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               Assignment Details
             </h1>
-            <p className="text-gray-600 mt-1">Manage editor and viewer assignments</p>
+            <p className="text-gray-600 mt-1">
+              Manage editor and viewer assignments
+            </p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5"
           >
             <UserPlus className="w-5 h-5" />
-            Assign User +
+            Assign 
           </button>
         </div>
 
@@ -57,30 +95,32 @@ export default function Assignment() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100">Total Assignments</p>
-                <h2 className="text-3xl font-bold mt-2">{assignments.length}</h2>
+                <h2 className="text-3xl font-bold mt-2">
+                  {assignments.length}
+                </h2>
               </div>
               <Users className="w-12 h-12 opacity-80" />
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-2xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-emerald-100">Active Editors</p>
                 <h2 className="text-3xl font-bold mt-2">
-                  {[...new Set(assignments.map(a => a.editorId))].length}
+                  {[...new Set(assignments.map((a) => a.editorId))].length}
                 </h2>
               </div>
               <UserCheck className="w-12 h-12 opacity-80" />
             </div>
           </div>
-          
+
           <div className="bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-2xl shadow-lg p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-100">Active Viewers</p>
                 <h2 className="text-3xl font-bold mt-2">
-                  {[...new Set(assignments.map(a => a.user?.userId))].length}
+                  {[...new Set(assignments.map((a) => a.user?.userId))].length}
                 </h2>
               </div>
               <Users className="w-12 h-12 opacity-80" />
@@ -91,24 +131,26 @@ export default function Assignment() {
         {/* Table */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold text-gray-800">All Assignments</h2>
+            <h2 className="text-xl font-semibold text-gray-800">
+              All Assignments
+            </h2>
           </div>
-          
-          <div className="overflow-x-auto">
+
+          <div className="overflow-x-auto max-h-150 overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                     ID
                   </th>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                    Editor ID
+                    Editor ID   
                   </th>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                     Viewer ID
                   </th>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                    Email
+                   Viewer Email
                   </th>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                     Created
@@ -138,8 +180,12 @@ export default function Assignment() {
                       <div className="flex flex-col items-center justify-center gap-3">
                         <Users className="w-12 h-12 text-gray-300" />
                         <div>
-                          <p className="text-gray-500 font-medium">No assignments found</p>
-                          <p className="text-sm text-gray-400 mt-1">Create your first assignment to get started</p>
+                          <p className="text-gray-500 font-medium">
+                            No assignments found
+                          </p>
+                          <p className="text-sm text-gray-400 mt-1">
+                            Create your first assignment to get started
+                          </p>
                         </div>
                         <button
                           onClick={() => setShowCreateModal(true)}
@@ -153,8 +199,8 @@ export default function Assignment() {
                   </tr>
                 ) : (
                   assignments.map((row) => (
-                    <tr 
-                      key={row.id} 
+                    <tr
+                      key={row.id}
                       className="hover:bg-gray-50 transition-colors duration-150"
                     >
                       <td className="p-4">
@@ -171,24 +217,16 @@ export default function Assignment() {
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-green-500" />
-                          <span className="font-medium">{row.user?.userId || "N/A"}</span>
+                          <span className="font-medium">
+                            {row.user?.userId || "N/A"}
+                          </span>
                         </div>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <Mail className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-700">{row.user?.email || "N/A"}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm">
-                            {new Date(row.createdAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
+                          <span className="text-gray-700">
+                            {row.user?.email || "N/A"}
                           </span>
                         </div>
                       </td>
@@ -196,11 +234,29 @@ export default function Assignment() {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-gray-400" />
                           <span className="text-sm">
-                            {new Date(row.updatedAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
+                            {new Date(row.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm">
+                            {new Date(row.updatedAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              },
+                            )}
                           </span>
                         </div>
                       </td>
@@ -211,14 +267,14 @@ export default function Assignment() {
                             className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                           >
                             <Edit2 className="w-4 h-4" />
-                            Edit
+                            
                           </button>
                           <button
                             onClick={() => setDeleteId(row.id)}
                             className="flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
-                            Delete
+                            
                           </button>
                         </div>
                       </td>
@@ -231,24 +287,32 @@ export default function Assignment() {
         </div>
 
         {/* Create Assignment Modal */}
-        {showCreateModal && (
-          <CreateAssignmentModal
-            onClose={() => setShowCreateModal(false)}
-            onSuccess={() => {
-              setShowCreateModal(false);
-              fetchAssignments();
-            }}
-          />
-        )}
+{showCreateModal && (
+  <CreateAssignmentModal
+    onClose={() => setShowCreateModal(false)}
+    onSuccess={() => {
+      setShowCreateModal(false);
+      fetchAssignments();
+    }}
+    editors={editors}
+    viewers={viewers}
+    assignments={assignments} // Add this line
+  />
+)}
 
-        {/* Edit Modal */}
-        {editRow && (
-          <AssignmentModal
-            row={editRow}
-            onClose={() => setEditRow(null)}
-            onSuccess={fetchAssignments}
-          />
-        )}
+{/* Edit Modal */}
+{editRow && (
+  <AssignmentModal
+    row={editRow}
+    onClose={() => setEditRow(null)}
+    onSuccess={() => {
+      fetchAssignments();
+    }}
+    editors={editors}
+    viewers={viewers}
+    assignments={assignments} // Add this line
+  />
+)}
 
         {/* Delete Modal */}
         {deleteId && (
@@ -264,40 +328,50 @@ export default function Assignment() {
 }
 
 // Create Assignment Modal Component
-function CreateAssignmentModal({ onClose, onSuccess }) {
-  const [editorId, setEditorId] = useState("");
-  const [viewerId, setViewerId] = useState("");
+function CreateAssignmentModal({ onClose, onSuccess, editors, viewers,assignments }) {
+  const [selectedEditor, setSelectedEditor] = useState("");
+  const [selectedViewer, setSelectedViewer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  // Get viewers not already assigned
+  const assignedViewerIds = new Set(assignments.map(a => a.viewerId));
+  const availableViewers = viewers.filter(viewer => 
+    !assignedViewerIds.has(viewer.userId)
+  );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
-    if (!editorId.trim() || !viewerId.trim()) {
-      setError("Both editor ID and viewer ID are required");
+    if (!selectedEditor || !selectedViewer) {
+      setError("Both editor and viewer are required");
       return;
     }
 
     setLoading(true);
     setError("");
-    
+
     try {
-      await createAssignment({ editorId, viewerId });
+      await createAssignment({ 
+        editorId: selectedEditor, 
+        viewerId: selectedViewer 
+      });
       setSuccess(true);
-      
+
       // Reset form and close modal after success
       setTimeout(() => {
-        setEditorId("");
-        setViewerId("");
+        setSelectedEditor("");
+        setSelectedViewer("");
         setSuccess(false);
         onSuccess();
       }, 1500);
-      
     } catch (err) {
       if (err.response?.status === 409) {
-        setError("This viewer already has an assignment. Please use a different viewer ID.");
+        setError(
+          "This viewer already has an assignment. Please select a different viewer.",
+        );
       } else if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
@@ -314,8 +388,12 @@ function CreateAssignmentModal({ onClose, onSuccess }) {
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Create New Assignment</h2>
-            <p className="text-sm text-gray-500 mt-1">Assign a viewer to an editor</p>
+            <h2 className="text-xl font-bold text-gray-900">
+              Create New Assignment
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Assign a viewer to an editor
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -331,17 +409,37 @@ function CreateAssignmentModal({ onClose, onSuccess }) {
           {success ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                <svg
+                  className="w-8 h-8 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Assignment Created!</h3>
-              <p className="text-gray-600">The assignment has been successfully created.</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Assignment Created!
+              </h3>
+              <p className="text-gray-600">
+                The assignment has been successfully created.
+              </p>
               <div className="mt-6">
                 <div className="animate-pulse flex space-x-1 justify-center">
                   <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-                  <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                  <div
+                    className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -350,8 +448,18 @@ function CreateAssignmentModal({ onClose, onSuccess }) {
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
                     </svg>
                     <span className="text-sm">{error}</span>
                   </div>
@@ -359,64 +467,145 @@ function CreateAssignmentModal({ onClose, onSuccess }) {
               )}
 
               <div className="space-y-5">
+                {/* Editor Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Editor ID
+                    Select Editor
                   </label>
                   <div className="relative">
-                    <UserCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      placeholder="Enter editor ID"
-                      value={editorId}
-                      onChange={(e) => setEditorId(e.target.value)}
-                      disabled={loading}
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                      <UserCheck className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <select
+                      className="w-full h-max-[30px] overflow-y-auto pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none bg-white"
+                      value={selectedEditor}
+                      onChange={(e) => setSelectedEditor(e.target.value)}
+                      disabled={loading || editors.length === 0}
                       required
-                    />
+                    
+                    >
+                      {/* <div className="overflow-y-auto max-h-[30px]"> */}
+
+                      <option value="">Select an editor</option>
+                      {editors.map((editor) => (
+                        
+                        <option key={editor.userId} value={editor.userId}>
+                          {editor.name || editor.email} ({editor.userId})
+                        </option>
+                      ))}
+                      {/* </div> */}
+                    </select>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Unique identifier for the editor</p>
+                  {editors.length === 0 && (
+                    <p className="text-xs text-red-500 mt-1">
+                      No editors available. Please add editors first.
+                    </p>
+                  )}
                 </div>
 
+                {/* Viewer Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Viewer ID
+                    Select Viewer
                   </label>
                   <div className="relative">
-                    <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                      placeholder="Enter viewer ID"
-                      value={viewerId}
-                      onChange={(e) => setViewerId(e.target.value)}
-                      disabled={loading}
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                      <Users className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <select
+                      className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none bg-white"
+                      value={selectedViewer}
+                      onChange={(e) => setSelectedViewer(e.target.value)}
+                      disabled={loading || availableViewers.length === 0}
                       required
-                    />
+                    >
+                      <option value="">Select a viewer</option>
+                      {availableViewers.map((viewer) => (
+                        <option key={viewer.userId} value={viewer.userId}>
+                          {viewer.name || viewer.email} ({viewer.userId})
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Each viewer can only have one assignment</p>
+                  {availableViewers.length === 0 && (
+                    <p className="text-xs text-red-500 mt-1">
+                      No available viewers. All viewers are already assigned.
+                    </p>
+                  )}
                 </div>
 
+                {/* Assignment Rules */}
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                   <h3 className="text-sm font-medium text-blue-700 mb-2 flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
                     </svg>
                     Assignment Rules
                   </h3>
                   <ul className="text-xs text-blue-600 space-y-1">
                     <li className="flex items-start gap-2">
                       <span className="mt-0.5">•</span>
-                      <span>One editor can have multiple viewer assignments</span>
+                      <span>
+                        One editor can have multiple viewer assignments
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-0.5">•</span>
-                      <span>Each viewer can only be assigned to one editor</span>
+                      <span>
+                        Each viewer can only be assigned to one editor
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-0.5">•</span>
-                      <span>Duplicate assignments will be rejected</span>
+                      <span>Only unassigned viewers are shown</span>
                     </li>
                   </ul>
                 </div>
+
+                {/* Selected Info Preview */}
+                {(selectedEditor || selectedViewer) && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">
+                      Selected Information
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      {selectedEditor && (
+                        <div>
+                          <p className="text-gray-500">Editor</p>
+                          <p className="font-medium">
+                            {editors.find(e => e.userId === selectedEditor)?.name || 
+                             editors.find(e => e.userId === selectedEditor)?.email}
+                          </p>
+                        </div>
+                      )}
+                      {selectedViewer && (
+                        <div>
+                          <p className="text-gray-500">Viewer</p>
+                          <p className="font-medium">
+                            {viewers.find(v => v.userId === selectedViewer)?.name || 
+                             viewers.find(v => v.userId === selectedViewer)?.email}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Modal Footer */}
@@ -431,7 +620,7 @@ function CreateAssignmentModal({ onClose, onSuccess }) {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !selectedEditor || !selectedViewer}
                   className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
@@ -452,24 +641,32 @@ function CreateAssignmentModal({ onClose, onSuccess }) {
   );
 }
 
-// Edit Assignment Modal Component (Updated)
-function AssignmentModal({ row, onClose, onSuccess }) {
-  const [editorId, setEditorId] = useState(row.editorId);
-  const [viewerId, setViewerId] = useState(row.viewerId);
+function AssignmentModal({ row, onClose, onSuccess, editors, viewers,assignments }) {
+  const [selectedEditor, setSelectedEditor] = useState(row.editorId);
+  const [currentViewer, setCurrentViewer] = useState(row.viewerId);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const otherAssignments = assignments.filter(a => a.id !== row.id);
+  const assignedViewerIds = new Set(otherAssignments.map(a => a.viewerId));
+  
+  const availableEditors = editors.filter(editor => 
+    editor.userId !== row.editorId
+  );
+
   const submit = async (e) => {
     e.preventDefault();
-    if (!editorId.trim() || !viewerId.trim()) {
-      setError("Both fields are required");
+    if (!selectedEditor) {
+      setError("Editor is required");
       return;
     }
 
     setLoading(true);
     setError("");
     try {
-      await updateAssignment(row.id, { editorId, viewerId });
+      await updateAssignment(row.id, { 
+        editorId: selectedEditor 
+      });
       onSuccess();
       onClose();
     } catch (err) {
@@ -479,14 +676,17 @@ function AssignmentModal({ row, onClose, onSuccess }) {
     }
   };
 
+  const viewerDetails = viewers.find(v => v.userId === row.viewerId);
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
-        {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Edit Assignment</h2>
-            <p className="text-sm text-gray-500 mt-1">Update editor and viewer information</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Update editor for this assignment
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -496,7 +696,6 @@ function AssignmentModal({ row, onClose, onSuccess }) {
           </button>
         </div>
 
-        {/* Modal Body */}
         <form onSubmit={submit} className="p-6">
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
@@ -505,54 +704,103 @@ function AssignmentModal({ row, onClose, onSuccess }) {
           )}
 
           <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Editor ID
-              </label>
-              <div className="relative">
-                <UserCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                  placeholder="Enter editor ID"
-                  value={editorId}
-                  onChange={(e) => setEditorId(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Viewer ID
-              </label>
-              <div className="relative">
-                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                  placeholder="Enter viewer ID"
-                  value={viewerId}
-                  onChange={(e) => setViewerId(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
+           
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Current Assignment Info</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                Current Assignment Info
+              </h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <p className="text-gray-500">Assignment ID</p>
                   <p className="font-medium">#{row.id}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Email</p>
-                  <p className="font-medium">{row.user?.email || "N/A"}</p>
+                  <p className="text-gray-500">Status</p>
+                  <p className="font-medium text-green-600">Active</p>
                 </div>
               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Viewer (Cannot be changed)
+              </label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <Users className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                  value={`${viewerDetails?.name || viewerDetails?.email || "N/A"} (${row.viewerId})`}
+                  readOnly
+                  disabled
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Viewer assignment cannot be changed once created
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Editor
+              </label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <UserCheck className="w-5 h-5 text-gray-400" />
+                </div>
+                <select
+                  className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition appearance-none bg-white"
+                  value={selectedEditor}
+                  onChange={(e) => setSelectedEditor(e.target.value)}
+                  disabled={loading}
+                  required
+                >
+                 
+                  <option value={row.editorId} className="bg-blue-50 text-blue-700 font-medium">
+                    Current: {editors.find(e => e.userId === row.editorId)?.name || 
+                              editors.find(e => e.userId === row.editorId)?.email} ({row.editorId})
+                  </option>
+                  
+                  {availableEditors.map((editor) => (
+                    <option key={editor.userId} value={editor.userId}>
+                      {editor.name || editor.email} ({editor.userId})
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+              {availableEditors.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  No other editors available
+                </p>
+              )}
+            </div>
+
+            {selectedEditor !== row.editorId && (
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                <h3 className="text-sm font-medium text-blue-700 mb-2">
+                  Editor Change
+                </h3>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="text-gray-600">
+                    <span className="line-through">
+                      {editors.find(e => e.userId === row.editorId)?.name || 
+                       editors.find(e => e.userId === row.editorId)?.email}
+                    </span>
+                    <span className="mx-2">→</span>
+                    <span className="font-medium text-blue-700">
+                      {editors.find(e => e.userId === selectedEditor)?.name || 
+                       editors.find(e => e.userId === selectedEditor)?.email}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Modal Footer */}
           <div className="flex gap-3 mt-8 pt-6 border-t">
             <button
               type="button"
@@ -563,7 +811,7 @@ function AssignmentModal({ row, onClose, onSuccess }) {
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || selectedEditor === row.editorId}
               className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
@@ -572,7 +820,7 @@ function AssignmentModal({ row, onClose, onSuccess }) {
                   Saving...
                 </span>
               ) : (
-                "Save Changes"
+                "Change Editor"
               )}
             </button>
           </div>
@@ -582,7 +830,6 @@ function AssignmentModal({ row, onClose, onSuccess }) {
   );
 }
 
-// Delete Modal Component
 function DeleteModal({ open, onClose, onConfirm }) {
   const [loading, setLoading] = useState(false);
 
@@ -601,13 +848,14 @@ function DeleteModal({ open, onClose, onConfirm }) {
           <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
             <Trash2 className="w-6 h-6 text-red-600" />
           </div>
-          
+
           <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
             Delete Assignment?
           </h3>
-          
+
           <p className="text-gray-600 text-center mb-6">
-            This action cannot be undone. All data associated with this assignment will be permanently removed.
+            This action cannot be undone. All data associated with this
+            assignment will be permanently removed.
           </p>
 
           <div className="flex gap-3">
@@ -638,4 +886,3 @@ function DeleteModal({ open, onClose, onConfirm }) {
     </div>
   );
 }
-

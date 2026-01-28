@@ -1,39 +1,33 @@
-const db = require("../config/neonConfig");
-const bcrypt = require("bcrypt");
-
-/* ===================== LOGIN ===================== */
+const prisma = require("../prisma/client");
 
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // if (!email || !password) {
-    //   return res.status(400).json({
-    //     message: "Email and password required",
-    //   });
-    // }
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        userId: true,
+        email: true,
+        password: true,
+        role: true,
+      },
+    });
 
-    const result = await db.query(
-      "SELECT id, email, password FROM users WHERE email = $1",
-      [email]
-    );
-
-    if (result.rows.length === 0) {
+    if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const user = result.rows[0];
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    if (password !== user.password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     res.status(200).json({
       message: "Login successful",
       user: {
-        id: user.id,
+        userId: user.userId,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -57,7 +51,7 @@ const signup = async (req, res) => {
 
     const existingUser = await db.query(
       "SELECT id FROM users WHERE email = $1",
-      [email]
+      [email],
     );
 
     if (existingUser.rows.length > 0) {
@@ -70,7 +64,7 @@ const signup = async (req, res) => {
       `INSERT INTO users (email, password)
        VALUES ($1, $2)
        RETURNING id, email`,
-      [email, hashedPassword]
+      [email, hashedPassword],
     );
 
     res.status(201).json({

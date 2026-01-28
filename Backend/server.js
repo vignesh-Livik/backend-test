@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+
 const authRoutes = require("./routes/authRoutes");
 const bankroutes = require("./routes/bankRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -8,6 +9,7 @@ const userPersonalDetailsRoutes = require("./routes/userPersonalDetailsRoutes");
 const assignmentRoutes = require("./routes/assignmentRoutes");
 const leavesRoutes = require("./routes/leaveRoutes");
 const eduRoutes = require("./routes/eduRoutes");
+const uploadImage = require("./routes/uploadImageRoute");
 
 const app = express();
 const PORT = 3000;
@@ -24,7 +26,10 @@ app.get("/", async (req, res) => {
   res.send("Server Connected");
 });
 
-app.use("/api", userPersonalDetailsRoutes);
+app.use("/upload", express.static("upload"));
+
+app.use("/api/img-upload", uploadImage);
+app.use("/api/personal", userPersonalDetailsRoutes);
 app.use("/api/assignment", assignmentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bank", bankroutes);
@@ -32,9 +37,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/education", eduRoutes);
 app.use("/api/leaves", leavesRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}/`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server is running at http://localhost:${PORT}/`);
+// });
 
-// module.exports = app;
-
+module.exports = app;

@@ -9,6 +9,9 @@ const API = axios.create({
 // GET ALL USERS
 export const getAllUsers = () => API.get("/");
 
+// GET ALL USER BY ID
+export const getUserById = (id) => API.get(`/${id}`);
+
 // CREATE USER
 export const createUser = (data) => API.post("/", data);
 

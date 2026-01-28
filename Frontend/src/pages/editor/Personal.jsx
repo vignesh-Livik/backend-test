@@ -21,11 +21,7 @@ const Personal = () => {
   };
 
   return (
-    <div className="p-4">
-      <button onClick={() => setShowForm(true)} className="mb-4 bg-blue-500 text-white px-4 py-2 rounded">
-        Add Personal Details
-      </button>
-
+    <div className="p-1">
       {showForm && (
         <UserPersonalForm
           userId={editingUserId}

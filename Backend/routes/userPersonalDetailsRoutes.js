@@ -9,10 +9,10 @@ const {
   getAllUsersWithPersonalDetails
 } = require("../controller/userPersonalDetailsController");
 
-router.post("/users/:userId/personal-details", createPersonalDetails);
-router.get("/users/personal-details", getAllUsersWithPersonalDetails);
-router.get("/users/:userId/personal-details", getUserProfile);
-router.put("/users/:userId/personal-details", updatePersonalDetails);
-router.delete("/users/:userId/personal-details", deletePersonalDetails);
+router.post("/:userId", createPersonalDetails);
+router.get("/", getAllUsersWithPersonalDetails);
+router.get("/:userId", getUserProfile);
+router.put("/:userId", updatePersonalDetails);
+router.delete("/:userId", deletePersonalDetails);
 
 module.exports = router;

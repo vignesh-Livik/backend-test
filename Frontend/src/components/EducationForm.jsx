@@ -10,6 +10,7 @@ import {
   GraduationCap,
   X,
   CheckCircle,
+  User,
 } from "lucide-react";
 
 function EducationForm({
@@ -17,12 +18,13 @@ function EducationForm({
   onSubmit,
   onCancel,
   isEditMode = false,
+  isViewMode = false,
 }) {
   /* ===============================
      INITIAL STATE (NO useEffect)
      =============================== */
   const [formData, setFormData] = useState(() => ({
-    id: initialData?.id?.toString() || "",
+    userId: initialData?.userId || "",
     qualification: initialData?.qualification || "",
     specialization: initialData?.specialization || "",
     institution: initialData?.institution || "",
@@ -54,7 +56,7 @@ function EducationForm({
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.id?.toString().trim()) newErrors.id = "ID is required";
+    if (!formData.userId?.trim()) newErrors.userId = "User ID is required";
     if (!formData.qualification.trim())
       newErrors.qualification = "Qualification is required";
     if (!formData.institution.trim())
@@ -66,8 +68,6 @@ function EducationForm({
       newErrors.yearOfPassing = "Year of passing is required";
     } else if (+formData.yearOfPassing > currentYear) {
       newErrors.yearOfPassing = "Year cannot be in the future";
-    } else if (+formData.yearOfPassing < currentYear - 100) {
-      newErrors.yearOfPassing = "Please enter a valid year";
     }
 
     if (formData.percentage) {
@@ -116,70 +116,69 @@ function EducationForm({
      RENDER
      =============================== */
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header Section */}
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-            <GraduationCap className="h-6 w-6 text-white" />
+            <GraduationCap className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              {isEditMode ? "Edit Academic Record" : "Add New Education"}
+            <h2 className="text-xl font-bold text-gray-900">
+              {isViewMode
+                ? "View Academic Record"
+                : isEditMode
+                  ? "Edit Academic Record"
+                  : "Add New Education"}
             </h2>
             <p className="text-gray-600 text-sm">
-              {isEditMode
-                ? "Update your qualification details"
-                : "Fill in your academic qualification details below"}
+              {isViewMode
+                ? `Viewing record for User ID: ${formData.userId}`
+                : isEditMode
+                  ? `Updating record for User ID: ${formData.userId}`
+                  : "Fill in the academic qualification details below"}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Form Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* ID Field */}
+      {/* Form Grid - Reorganized layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* User ID Field - Half width */}
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-            <Hash className="h-4 w-4 text-blue-600" />
-            ID / Reference Number
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <User className="h-4 w-4 text-blue-600" />
+            User ID
           </label>
           <div className="relative">
             <input
-              name="id"
-              value={formData.id}
+              name="userId"
+              value={formData.userId}
               onChange={handleChange}
-              disabled={isEditMode}
-              placeholder="Enter unique identifier"
-              className={`w-full px-4 py-3 pl-11 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
-                errors.id
+              disabled={isEditMode || isViewMode}
+              placeholder="Enter User ID (e.g., 2)"
+              className={`w-full px-4 py-2.5 pl-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                errors.userId
                   ? "border-red-500 ring-2 ring-red-500 ring-opacity-20"
                   : "border-gray-300 hover:border-gray-400"
               } ${
-                isEditMode
+                isEditMode || isViewMode
                   ? "bg-gray-50 text-gray-600 cursor-not-allowed"
                   : "bg-white"
               }`}
             />
-            <Hash className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+            <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
-          {errors.id && (
-            <p className="text-red-600 text-sm font-medium flex items-center gap-1 mt-1">
-              <span className="h-1.5 w-1.5 bg-red-600 rounded-full"></span>
-              {errors.id}
-            </p>
-          )}
-          {isEditMode && (
-            <p className="text-gray-500 text-xs mt-1 flex items-center gap-1">
-              <span className="h-1 w-1 bg-gray-400 rounded-full"></span>
-              ID cannot be modified in edit mode
+          {errors.userId && (
+            <p className="text-red-600 text-sm font-medium mt-1">
+              {errors.userId}
             </p>
           )}
         </div>
 
-        {/* Qualification Field */}
+        {/* Qualification Field - Right of User ID */}
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Award className="h-4 w-4 text-blue-600" />
             Qualification Level
           </label>
@@ -188,7 +187,12 @@ function EducationForm({
               name="qualification"
               value={formData.qualification}
               onChange={handleChange}
-              className={`w-full px-4 py-3 pl-11 border rounded-xl appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white ${
+              disabled={isViewMode}
+              className={`w-full px-4 py-2.5 pl-10 border rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                isViewMode
+                  ? "bg-gray-50 text-gray-600 cursor-not-allowed"
+                  : "bg-white"
+              } ${
                 errors.qualification
                   ? "border-red-500 ring-2 ring-red-500 ring-opacity-20"
                   : "border-gray-300 hover:border-gray-400"
@@ -196,27 +200,29 @@ function EducationForm({
             >
               <option value="">Select qualification level</option>
               {qualifications.map((q) => (
-                <option key={q} value={q} className="py-2">
+                <option key={q} value={q}>
                   {q}
                 </option>
               ))}
             </select>
-            <Award className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
-            <div className="absolute right-3 top-3.5 pointer-events-none">
-              <svg
-                className="h-4 w-4 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
+            <Award className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            {!isViewMode && (
+              <div className="absolute right-3 top-2.5 pointer-events-none">
+                <svg
+                  className="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            )}
           </div>
           {errors.qualification && (
             <p className="text-red-600 text-sm font-medium flex items-center gap-1 mt-1">
@@ -226,25 +232,9 @@ function EducationForm({
           )}
         </div>
 
-        {/* Specialization Field */}
+        {/* Institution Field - Left column */}
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-            <Tag className="h-4 w-4 text-blue-600" />
-            Specialization / Major
-          </label>
-          <input
-            name="specialization"
-            value={formData.specialization}
-            onChange={handleChange}
-            placeholder="e.g., Computer Science, Business Administration"
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-400 bg-white"
-          />
-          <p className="text-gray-500 text-xs">Optional field</p>
-        </div>
-
-        {/* Institution Field */}
-        <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Building2 className="h-4 w-4 text-blue-600" />
             Institution Name
           </label>
@@ -253,14 +243,15 @@ function EducationForm({
               name="institution"
               value={formData.institution}
               onChange={handleChange}
+              disabled={isViewMode}
               placeholder="e.g., Massachusetts Institute of Technology"
-              className={`w-full px-4 py-3 pl-11 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+              className={`w-full px-4 py-2.5 pl-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
                 errors.institution
                   ? "border-red-500 ring-2 ring-red-500 ring-opacity-20"
                   : "border-gray-300 hover:border-gray-400"
-              } bg-white`}
+              } ${isViewMode ? "bg-gray-50 text-gray-600 cursor-not-allowed" : "bg-white"}`}
             />
-            <Building2 className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+            <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
           {errors.institution && (
             <p className="text-red-600 text-sm font-medium flex items-center gap-1 mt-1">
@@ -270,9 +261,9 @@ function EducationForm({
           )}
         </div>
 
-        {/* Board/University Field */}
+        {/* Board/University Field - Right column */}
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <BookOpen className="h-4 w-4 text-blue-600" />
             Board / University
           </label>
@@ -281,14 +272,15 @@ function EducationForm({
               name="boardOrUniversity"
               value={formData.boardOrUniversity}
               onChange={handleChange}
+              disabled={isViewMode}
               placeholder="e.g., Cambridge University, CBSE"
-              className={`w-full px-4 py-3 pl-11 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+              className={`w-full px-4 py-2.5 pl-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
                 errors.boardOrUniversity
                   ? "border-red-500 ring-2 ring-red-500 ring-opacity-20"
                   : "border-gray-300 hover:border-gray-400"
-              } bg-white`}
+              } ${isViewMode ? "bg-gray-50 text-gray-600 cursor-not-allowed" : "bg-white"}`}
             />
-            <BookOpen className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+            <BookOpen className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
           {errors.boardOrUniversity && (
             <p className="text-red-600 text-sm font-medium flex items-center gap-1 mt-1">
@@ -298,9 +290,32 @@ function EducationForm({
           )}
         </div>
 
-        {/* Year of Passing Field */}
+        {/* Specialization Field - Left column */}
         <div className="space-y-2">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <Tag className="h-4 w-4 text-blue-600" />
+            Specialization / Major
+          </label>
+          <input
+            name="specialization"
+            value={formData.specialization}
+            onChange={handleChange}
+            disabled={isViewMode}
+            placeholder="e.g., Computer Science, Business Administration"
+            className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-400 ${
+              isViewMode
+                ? "bg-gray-50 text-gray-600 cursor-not-allowed"
+                : "bg-white"
+            }`}
+          />
+          {!isViewMode && (
+            <p className="text-gray-500 text-xs mt-1">Optional field</p>
+          )}
+        </div>
+
+        {/* Year of Passing Field - Right column */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Calendar className="h-4 w-4 text-blue-600" />
             Year of Passing
           </label>
@@ -309,7 +324,12 @@ function EducationForm({
               name="yearOfPassing"
               value={formData.yearOfPassing}
               onChange={handleChange}
-              className={`w-full px-4 py-3 pl-11 border rounded-xl appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white ${
+              disabled={isViewMode}
+              className={`w-full px-4 py-2.5 pl-10 border rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+                isViewMode
+                  ? "bg-gray-50 text-gray-600 cursor-not-allowed"
+                  : "bg-white"
+              } ${
                 errors.yearOfPassing
                   ? "border-red-500 ring-2 ring-red-500 ring-opacity-20"
                   : "border-gray-300 hover:border-gray-400"
@@ -317,27 +337,29 @@ function EducationForm({
             >
               <option value="">Select passing year</option>
               {years.map((y) => (
-                <option key={y} value={y} className="py-2">
+                <option key={y} value={y}>
                   {y}
                 </option>
               ))}
             </select>
-            <Calendar className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
-            <div className="absolute right-3 top-3.5 pointer-events-none">
-              <svg
-                className="h-4 w-4 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
+            <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            {!isViewMode && (
+              <div className="absolute right-3 top-2.5 pointer-events-none">
+                <svg
+                  className="h-4 w-4 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            )}
           </div>
           {errors.yearOfPassing && (
             <p className="text-red-600 text-sm font-medium flex items-center gap-1 mt-1">
@@ -347,9 +369,9 @@ function EducationForm({
           )}
         </div>
 
-        {/* Percentage Field */}
+        {/* Percentage Field - Full width at bottom */}
         <div className="md:col-span-2 space-y-2">
-          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
             <Percent className="h-4 w-4 text-blue-600" />
             Percentage / CGPA
           </label>
@@ -358,19 +380,15 @@ function EducationForm({
               name="percentage"
               value={formData.percentage}
               onChange={handleChange}
+              disabled={isViewMode}
               placeholder="e.g., 85.5 (leave empty if not applicable)"
-              className={`w-full px-4 py-3 pl-11 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
+              className={`w-3/4 px-4 py-2.5 pl-10 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ${
                 errors.percentage
                   ? "border-red-500 ring-2 ring-red-500 ring-opacity-20"
                   : "border-gray-300 hover:border-gray-400"
-              } bg-white`}
+              } ${isViewMode ? "bg-gray-50 text-gray-600 cursor-not-allowed" : "bg-white"}`}
             />
-            <Percent className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
-            {formData.percentage && (
-              <span className="absolute right-3 top-3.5 text-gray-500 font-medium">
-                %
-              </span>
-            )}
+            <Percent className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </div>
           {errors.percentage && (
             <p className="text-red-600 text-sm font-medium flex items-center gap-1 mt-1">
@@ -378,44 +396,54 @@ function EducationForm({
               {errors.percentage}
             </p>
           )}
-          <p className="text-gray-500 text-sm flex items-center gap-2">
-            <span className="h-1 w-1 bg-gray-400 rounded-full"></span>
-            Enter percentage between 0-100 or leave blank if not applicable
-          </p>
+          {!isViewMode && (
+            <p className="text-gray-500 text-xs mt-1">
+              Enter percentage between 0-100 or leave blank if not applicable
+            </p>
+          )}
         </div>
       </div>
 
       {/* Form Actions */}
-      <div className="pt-8 border-t border-gray-200">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="pt-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1 px-6 py-3.5 text-gray-700 font-medium border border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className={`flex-1 px-5 py-2.5 text-gray-700 font-medium border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+              isViewMode ? "bg-gray-100 font-bold border-gray-400" : ""
+            }`}
           >
-            <X className="h-4 w-4" />
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? (
-              <>
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                {isEditMode ? "Updating..." : "Adding..."}
-              </>
+            {isViewMode ? (
+              "Close"
             ) : (
               <>
-                <CheckCircle className="h-4 w-4" />
-                {isEditMode
-                  ? "Update Education Record"
-                  : "Add Education Record"}
+                <X className="h-4 w-4" /> Cancel
               </>
             )}
           </button>
+          {!isViewMode && (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  {isEditMode ? "Updating..." : "Adding..."}
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-4 w-4" />
+                  {isEditMode
+                    ? "Update Education Record"
+                    : "Add Education Record"}
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </form>

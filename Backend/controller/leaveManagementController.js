@@ -76,17 +76,24 @@ exports.getAllLeaves = async (req, res) => {
 exports.updateLeaveDetails = async (req, res) => {
   try {
     const leaveId = Number(req.params.id);
-    const { startDate, endDate, leaveType, reason, totalDays } = req.body;
+    const { startDate, endDate, leaveType, reason, totalDays, status, approvedBy } = req.body;
+
+    const data = {};
+    if (startDate) data.startDate = new Date(startDate);
+    if (endDate) data.endDate = new Date(endDate);
+    if (leaveType) data.leaveType = leaveType;
+    if (reason) data.reason = reason;
+    if (totalDays) data.totalDays = totalDays;
+    if (status) data.status = status;
+    if (approvedBy !== undefined) data.approvedBy = approvedBy;
+    if (req.body.rejectedBy !== undefined) data.rejectedBy = req.body.rejectedBy;
+
+    console.log('[DEBUG] updateLeaveDetails - rejectedBy:', req.body.rejectedBy);
+    console.log('[DEBUG] updateLeaveDetails - data object:', data);
 
     const updatedLeave = await prisma.leaveManagements.update({
       where: { id: leaveId },
-      data: {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        leaveType,
-        reason,
-        totalDays,
-      },
+      data,
     });
 
     res.json({
@@ -98,7 +105,6 @@ exports.updateLeaveDetails = async (req, res) => {
   }
 };
 
-
 exports.deleteLeave = async (req, res) => {
   try {
     const { id } = req.params;
@@ -108,6 +114,54 @@ exports.deleteLeave = async (req, res) => {
     });
 
     res.json({ message: "Leave deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.approveLeave = async (req, res) => {
+  try {
+    const leaveId = Number(req.params.id);
+    const { approvedBy } = req.body;
+
+    const updatedLeave = await prisma.leaveManagements.update({
+      where: { id: leaveId },
+      data: {
+        status: "APPROVED",
+        approvedBy: approvedBy || null,
+      },
+    });
+
+    res.json({
+      message: "Leave approved successfully",
+      data: updatedLeave,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.rejectLeave = async (req, res) => {
+  try {
+    const leaveId = Number(req.params.id);
+
+    console.log('[DEBUG] rejectLeave - req.body:', req.body);
+    console.log('[DEBUG] rejectLeave - rejectedBy:', req.body.rejectedBy);
+
+    const updatedLeave = await prisma.leaveManagements.update({
+      where: { id: leaveId },
+      data: {
+        status: "REJECTED",
+        rejectedBy: req.body.rejectedBy || null,
+      },
+    });
+
+    console.log('[DEBUG] rejectLeave - updatedLeave:', updatedLeave);
+
+    res.json({
+      message: "Leave rejected successfully",
+      data: updatedLeave,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

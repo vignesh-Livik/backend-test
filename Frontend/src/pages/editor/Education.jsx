@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import {
-  getEducationByUser,
+  getAllEducation,
   addEducation,
-  updateEducation,
-  deleteEducation,
-} from "../../services/educationAPI";
+  updateEducationById,
+  deleteEducationById,
+} from "../../services/educationService";
 import EducationTable from "../../components/EducationTable";
 import EducationForm from "../../components/EducationForm";
 import { GraduationCap, Loader2, AlertCircle, PlusCircle } from "lucide-react";
@@ -15,9 +15,8 @@ function Education() {
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
   const [editingEducation, setEditingEducation] = useState(null);
-
-  const userId = "2"; // MUST exist in DB
 
   useEffect(() => {
     fetchEducationData();
@@ -27,8 +26,7 @@ function Education() {
   const fetchEducationData = async () => {
     try {
       setLoading(true);
-
-      const res = await getEducationByUser(userId);
+      const res = await getAllEducation();
 
       // ✅ BACKEND RETURNS ARRAY
       const list = Array.isArray(res) ? res : res.data;
@@ -47,7 +45,7 @@ function Education() {
   const handleAddEducation = async (formData) => {
     try {
       await addEducation({
-        userId, // ✅ PASS FROM PAGE
+        userId: formData.userId, // ✅ TAKE FROM FORM
         qualification: formData.qualification,
         specialization: formData.specialization || null,
         institution: formData.institution,
@@ -66,7 +64,8 @@ function Education() {
   /* ================= EDIT ================= */
   const handleEditEducation = async (id, formData) => {
     try {
-      await updateEducation(id, {
+      // Use record ID for precise update
+      await updateEducationById(id, {
         qualification: formData.qualification,
         specialization: formData.specialization || null,
         institution: formData.institution,
@@ -86,7 +85,7 @@ function Education() {
   const handleDeleteEducation = async (id) => {
     if (!window.confirm("Delete this education record?")) return;
     try {
-      await deleteEducation(id);
+      await deleteEducationById(id);
       fetchEducationData();
     } catch (err) {
       alert(err.message);
@@ -96,18 +95,28 @@ function Education() {
   const openEditModal = (edu) => {
     setEditingEducation(edu);
     setIsEditMode(true);
+    setIsViewMode(false);
+    setIsModalOpen(true);
+  };
+
+  const openViewModal = (edu) => {
+    setEditingEducation(edu);
+    setIsEditMode(false);
+    setIsViewMode(true);
     setIsModalOpen(true);
   };
 
   const openAddModal = () => {
     setEditingEducation(null);
     setIsEditMode(false);
+    setIsViewMode(false);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setIsEditMode(false);
+    setIsViewMode(false);
     setEditingEducation(null);
   };
 
@@ -118,14 +127,14 @@ function Education() {
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
             <GraduationCap className="h-7 w-7 text-blue-600" />
-            <h1 className="text-3xl font-bold">Education</h1>
+            <h1 className="text-3xl font-bold">All Education Records</h1>
           </div>
           <button
             onClick={openAddModal}
             className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg"
           >
             <PlusCircle className="h-5 w-5" />
-            Add
+            Add New Record
           </button>
         </div>
 
@@ -149,6 +158,7 @@ function Education() {
               data={education}
               onEdit={openEditModal}
               onDelete={handleDeleteEducation}
+              onView={openViewModal}
             />
           )}
         </div>
@@ -160,9 +170,12 @@ function Education() {
               <EducationForm
                 initialData={editingEducation}
                 isEditMode={isEditMode}
+                isViewMode={isViewMode}
                 onSubmit={
                   isEditMode
                     ? (data) => handleEditEducation(editingEducation.id, data)
+                    : isViewMode 
+                    ? null
                     : handleAddEducation
                 }
                 onCancel={closeModal}

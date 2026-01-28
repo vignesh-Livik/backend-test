@@ -3,6 +3,19 @@ const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3
 const API_PATH = "/api/education";
 
 /* ===============================
+   GET ALL EDUCATION
+   =============================== */
+export async function getAllEducation() {
+  const response = await fetch(`${API_BASE_URL}${API_PATH}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch all education details");
+  }
+
+  return response.json();
+}
+
+/* ===============================
    GET EDUCATION BY USER
    =============================== */
 export async function getEducationByUser(userId) {
@@ -64,6 +77,40 @@ export async function deleteEducationByUser(userId) {
 
   if (!response.ok) {
     throw new Error("Failed to delete education");
+  }
+
+  return response.json();
+}
+
+/* =====================================================
+   UPDATE EDUCATION (BY RECORD ID)
+   ===================================================== */
+export async function updateEducationById(id, payload) {
+  const response = await fetch(`${API_BASE_URL}${API_PATH}/record/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update education record");
+  }
+
+  return response.json();
+}
+
+/* ===============================
+   DELETE EDUCATION (BY RECORD ID)
+   =============================== */
+export async function deleteEducationById(id) {
+  const response = await fetch(`${API_BASE_URL}${API_PATH}/record/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete education record");
   }
 
   return response.json();

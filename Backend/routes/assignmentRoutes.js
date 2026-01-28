@@ -8,6 +8,7 @@ router.get("/", getAllAssignments);
 router.get("/:editorId", getAssignmentsByEditor);
 router.put("/:id", updateAssignment);
 
+
 router.delete("/:id", deleteAssignment);
 
 module.exports = router;

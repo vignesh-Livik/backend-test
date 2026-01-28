@@ -19,9 +19,11 @@ model User {
   bankDetails         BankDetails?
   userPersonalDetails UserPersonalDetails?
   leaveManagements    leaveManagements[]
-  approvedLeaves      leaveManagements[]      @relation("LeaveApprover")
-  eduDetails          EduDetails[]
-  assignmentDetails   AssignmentsManagement[] @relation("Assignments")
+  approvedLeaves      leaveManagements[]   @relation("LeaveApprover")
+  rejectedLeaves      leaveManagements[]   @relation("LeaveRejector")
+
+  eduDetails        EduDetails[]
+  assignmentDetails AssignmentsManagement[] @relation("Assignments")
 }
 
 model UserPersonalDetails {
@@ -72,30 +74,29 @@ model BankDetails {
 model leaveManagements {
   id     Int    @id @default(autoincrement())
   userId String
-  user   User   @relation(fields: [userId], references: [userId])
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  leaveType LeaveType
+  leaveType LeaveType @default(SICKLEAVE)
   startDate DateTime
   endDate   DateTime
   totalDays Int
   reason    String
-  status    LeaveStatus @default(PENDING)
+  status    String
 
   approvedBy String?
   approver   User?   @relation("LeaveApprover", fields: [approvedBy], references: [userId])
+  rejectedBy String?
+  rejector   User?   @relation("LeaveRejector", fields: [rejectedBy], references: [userId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-enum LeaveStatus {
+enum LeaveType {
   PENDING
   APPROVED
   REJECTED
   CANCELLED
-}
-
-enum LeaveType {
   SICKLEAVE
   EARNEDLEAVE
   CASUALLEAVE

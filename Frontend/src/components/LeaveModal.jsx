@@ -1,33 +1,53 @@
 import { useState, useEffect } from "react";
-
-function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
+const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
+const defaultFormData = {
+  userId: "",
+  startDate: "",
+  endDate: "",
+  leaveType: "SICKLEAVE",
+  reason: "",
+  totalDays: 0,
+};
+function LeaveModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  editLeave,
+  viewMode,
+  initialUserId,
+}) {
   const BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
   const [formData, setFormData] = useState({
-    userId: "",
+    userId: initialUserId || "",
     startDate: "",
     endDate: "",
     leaveType: "SICKLEAVE",
     reason: "",
     totalDays: 0,
   });
+  const [loader, setLoader] = useState(false);
 
- const handleChange = (e) => {
-   const { name, value } = e.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-   setFormData((prev) => {
-     const updated = { ...prev, [name]: value };
-     if (name === "startDate" || name === "endDate") {
-       updated.totalDays = calculateTotalDays(
-         updated.startDate,
-         updated.endDate,
-       );
-     }
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (name === "startDate" || name === "endDate") {
+        updated.totalDays = calculateTotalDays(
+          updated.startDate,
+          updated.endDate,
+        );
+      }
 
-     return updated;
-   });
- };
+      return updated;
+    });
+  };
 
   useEffect(() => {
+    if (!isOpen) {
+      setFormData({ ...defaultFormData, userId: initialUserId || "" });
+      setLoader(false);
+    }
     if (editLeave) {
       setFormData({
         userId: editLeave.userId || "",
@@ -37,8 +57,12 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
         reason: editLeave.reason || "",
         totalDays: editLeave.totalDays || 0,
       });
+      setLoader(false);
+    } else if (isOpen) {
+      setFormData((prev) => ({ ...prev, userId: initialUserId || "" }));
+      setLoader(false);
     }
-  }, [editLeave]);
+  }, [isOpen, editLeave, initialUserId]);
 
   const calculateTotalDays = (startDate, endDate) => {
     if (!startDate || !endDate) return 0;
@@ -54,6 +78,7 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoader(true);
     const payload = {
       startDate: formData.startDate,
       endDate: formData.endDate,
@@ -102,6 +127,8 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
     } catch (err) {
       console.error(err);
       alert("Error saving leave");
+    } finally {
+      setLoader(false);
     }
   };
 
@@ -152,39 +179,43 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
           </div>
 
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  User ID <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
+            {!initialUserId && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    User ID <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      name="userId"
+                      value={formData.userId}
+                      onChange={handleChange}
+                      required
+                      disabled={viewMode || loader}
+                      className={`block w-76 pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${viewMode ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                      placeholder="Enter user ID"
+                    />
                   </div>
-                  <input
-                    type="text"
-                    name="userId"
-                    value={formData.userId}
-                    onChange={handleChange}
-                    required
-                    className="block w-76 pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="Enter user ID"
-                  />
                 </div>
               </div>
-            </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
@@ -212,7 +243,8 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
                     value={formData.startDate}
                     onChange={handleChange}
                     required
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    disabled={viewMode || loader}
+                    className={`block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${viewMode ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   />
                 </div>
               </div>
@@ -243,7 +275,8 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
                     value={formData.endDate}
                     onChange={handleChange}
                     required
-                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    disabled={viewMode || loader}
+                    className={`block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${viewMode ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   />
                 </div>
               </div>
@@ -274,7 +307,8 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
                     name="leaveType"
                     value={formData.leaveType}
                     onChange={handleChange}
-                    className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white"
+                    disabled={viewMode || loader}
+                    className={`block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white ${viewMode ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   >
                     <option value="SICKLEAVE">Sick Leave</option>
                     <option value="EARNEDLEAVE">Earned Leave</option>
@@ -320,8 +354,9 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
                   value={formData.reason}
                   onChange={handleChange}
                   required
+                  disabled={viewMode || loader}
                   rows="3"
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                  className={`block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none ${viewMode ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                   placeholder="Please provide a reason for your leave..."
                 />
               </div>
@@ -338,9 +373,19 @@ function LeaveModal({ isOpen, onClose, onSuccess, editLeave, viewMode }) {
               {!viewMode && (
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg"
+                  disabled={loader}
+                  className={`flex-1 px-4 py-3 rounded-lg font-medium text-white
+                  ${
+                    loader
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-blue-600 to-indigo-600"
+                  }`}
                 >
-                  {editLeave ? "Update Leave" : "Submit Request"}
+                  {loader
+                    ? "Submitting..."
+                    : editLeave
+                      ? "Update Leave"
+                      : "Submit Request"}
                 </button>
               )}
             </div>
