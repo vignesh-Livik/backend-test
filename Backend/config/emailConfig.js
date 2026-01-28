@@ -11,8 +11,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_ID,
     pass: process.env.GOOGLE_APP_PASSWORD,
   },
-  logger: true,   // 👈 logs SMTP traffic
-  debug: true,
+
 });
 
 transporter.verify((error, success) => {
