@@ -11,6 +11,16 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_ID,
     pass: process.env.GOOGLE_APP_PASSWORD,
   },
+  logger: true,   // 👈 logs SMTP traffic
+  debug: true,
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Mail server connection failed:", error);
+  } else {
+    console.log("✅ Mail server is ready to send messages");
+  }
 });
 
 module.exports = transporter;

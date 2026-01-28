@@ -50,7 +50,7 @@ exports.createAssignment = async (req, res) => {
         viewerId,
       },
     });
-    sendMail({
+    await sendMail({
       to: viewer.email,
       subject: "You have been assigned an editor",
       html: `
